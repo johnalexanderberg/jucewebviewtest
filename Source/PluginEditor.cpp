@@ -44,7 +44,26 @@ WebviewTestAudioProcessorEditor::WebviewTestAudioProcessorEditor(WebviewTestAudi
     webView {juce::WebBrowserComponent::Options{}.withBackend(juce::WebBrowserComponent::Options::Backend::webview2)
                  .withWinWebView2Options(juce::WebBrowserComponent::Options::WinWebView2{}.withUserDataFolder(juce::File::getSpecialLocation(juce::File::tempDirectory)))
                  .withResourceProvider([this](const auto& url){
-                                           return getResource(url);}).withNativeIntegrationEnabled()}
+                                           return getResource(url);})
+                 .withNativeIntegrationEnabled()
+                 .withNativeFunction("sendToNative",
+                                     [this](const juce::Array<juce::var>& args, juce::WebBrowserComponent::NativeFunctionCompletion completion) {
+                                         // Handle the function call from JavaScript
+                                         if (!args.isEmpty() && args[0].isString())
+                                         {
+                                             auto message = args[0].toString();
+
+                                             std::cout << "Received message: " << message.toStdString() << std::endl;
+
+                                             // Optionally respond to JavaScript
+                                             completion("Message received: " + message);
+                                         }
+                                         else
+                                         {
+                                             completion("Error: Invalid arguments");
+                                         }
+                                     })}
+
 {
     addAndMakeVisible(webView);
     webView.goToURL(webView.getResourceProviderRoot());
@@ -63,24 +82,37 @@ void WebviewTestAudioProcessorEditor::resized()
 {
     webView.setBounds(getLocalBounds());
 }
-
 std::optional<juce::WebBrowserComponent::Resource>
     WebviewTestAudioProcessorEditor::getResource(const juce::String& url)
 {
+    // Log the requested URL
+    std::cout << "Requested URL: " << url.toStdString() << std::endl;
 
+    // Strip the leading "/" from the URL and replace "/" with "_"
+    // and replace the periods (.) with an underscore (_) to match binary resource names
+    juce::String resourceToRetrieve;
+    if (url == "/") {
+        resourceToRetrieve = "index_html";
+    } else {
+        resourceToRetrieve = url.fromFirstOccurrenceOf("/", false, true).replace("/", "_");
+        resourceToRetrieve = resourceToRetrieve.replaceCharacter('.', '_');
+    }
 
-    const auto resourceToRetrieve = url == "/" ? "index_html" : url.fromFirstOccurrenceOf("/", false, true);
+    // Log the resource to retrieve
+    std::cout << "Resource to retrieve: " << resourceToRetrieve.toStdString() << std::endl;
 
     int dataSize = 0;
-    if (auto* data = BinaryData::getNamedResource(resourceToRetrieve.toRawUTF8(), dataSize)) {
-        const auto extension = resourceToRetrieve.fromLastOccurrenceOf("_", false, true);
 
+    // Retrieve the binary resource based on the modified resource name
+    if (auto* data = BinaryData::getNamedResource(resourceToRetrieve.toRawUTF8(), dataSize)) {
+
+        // Get the file extension for MIME type
+        const auto extension = resourceToRetrieve.fromLastOccurrenceOf("_", false, true);
         return juce::WebBrowserComponent::Resource{
             std::vector<std::byte>(reinterpret_cast<const std::byte*>(data),
                                    reinterpret_cast<const std::byte*>(data + dataSize)),
             getMimeForExtension(extension)};
     }
+
     return std::nullopt;
 }
-
-
