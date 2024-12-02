@@ -10,11 +10,11 @@ class SliderWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text('Slider Value: ${value.toStringAsFixed(2)}'),
+        Text('Slider Value: ${value.toStringAsFixed(4)}'),
         Slider(
           value: value,
           min: 0,
-          max: 100,
+          max: 1,
           onChanged: onChanged,
         ),
       ],

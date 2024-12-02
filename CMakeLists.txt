@@ -70,6 +70,25 @@ target_compile_definitions(${BaseTargetName}
 #file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/build/_deps/juce-src/modules/juce_gui_extra/native/javascript/"
 #        DESTINATION "${CMAKE_CURRENT_SOURCE_DIR}/Gui/public/js/juce/")
 
+add_custom_target(build_flutter_ui ALL
+        COMMAND ${CMAKE_COMMAND} -E echo "Building Flutter web..."
+        COMMAND flutter build web
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/Gui/flutter_ui
+        COMMAND_EXPAND_LISTS
+)
+
+file(GLOB UI_FILES "${Gui}/*")
+add_custom_command(
+        OUTPUT ${CMAKE_BINARY_DIR}/juce_binarydata_Resources.cpp
+        COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/juce_binarydata_Resources
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${UI_SOURCE_DIR} ${CMAKE_BINARY_DIR}/juce_binarydata_Resources
+        COMMAND ${PROJ_BINARY_DATA_COMPILER} --juce --namespace juce_binarydata ${CMAKE_BINARY_DIR}/juce_binarydata_Resources
+        DEPENDS ${UI_FILES}
+)
+
+# Link build_flutter_ui target to the main executable
+add_dependencies(${BaseTargetName} build_flutter_ui)
+
 # Define the temporary directory where resources will be copied and renamed
 set(TEMP_RESOURCE_DIR ${CMAKE_BINARY_DIR}/temp_resources)
 
@@ -82,12 +101,10 @@ set(RENAME_FLUTTER_FILES)
 # Loop through the found files
 foreach(FILE ${FLUTTER_FILES})
 
-
-
     # Extract the directory part from the file path
     get_filename_component(DIR_PART ${FILE} PATH)
 
-    # Replace "/" with "_" to ensure unique naming
+    # Replace "/" with "_" in the directory part
     string(REPLACE "/" "_" DIR_PART "${DIR_PART}")
 
     # Extract the filename from the path
@@ -100,14 +117,10 @@ foreach(FILE ${FLUTTER_FILES})
     set(PREFIX_TO_REMOVE "Gui_flutter_ui_build_web_")
     string(REPLACE ${PREFIX_TO_REMOVE} "" RENAMED_FILE ${RENAMED_FILE})
 
-    # Define the destination path for the renamed file in the temp folder
+    # Define the destination path
     set(DEST_PATH "${TEMP_RESOURCE_DIR}/${RENAMED_FILE}")
 
-    # Create necessary directories in the temp folder (if any)
-    get_filename_component(DIR_PATH ${DEST_PATH} DIRECTORY)
-    file(MAKE_DIRECTORY ${DIR_PATH})
-
-    # Copy the file to the temporary folder, renaming it as needed
+    # Copy the file to the temporary folder
     configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${FILE} ${DEST_PATH} COPYONLY)
 
     # Add the renamed file to the list for JUCE binary data

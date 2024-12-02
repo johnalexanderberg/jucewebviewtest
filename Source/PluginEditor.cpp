@@ -53,9 +53,9 @@ WebviewTestAudioProcessorEditor::WebviewTestAudioProcessorEditor(WebviewTestAudi
                                          {
                                              auto message = args[0].toString();
 
-                                             std::cout << "Received message: " << message.toStdString() << std::endl;
+                                             std::cout << message.toStdString() << std::endl;
 
-                                             // Optionally respond to JavaScript
+                                             // respond to JavaScript
                                              completion("Message received: " + message);
                                          }
                                          else
@@ -69,13 +69,11 @@ WebviewTestAudioProcessorEditor::WebviewTestAudioProcessorEditor(WebviewTestAudi
     webView.goToURL(webView.getResourceProviderRoot());
     setSize(800, 600);
 
-#if JUCE_DEBUG
     for (int i = 0; i < BinaryData::namedResourceListSize; ++i)
     {
         auto message = "Resource available: " + juce::String(BinaryData::namedResourceList[i]);
         std::cout << message << std::endl;
     }
-#endif
 }
 
 void WebviewTestAudioProcessorEditor::resized()
@@ -88,8 +86,7 @@ std::optional<juce::WebBrowserComponent::Resource>
     // Log the requested URL
     std::cout << "Requested URL: " << url.toStdString() << std::endl;
 
-    // Strip the leading "/" from the URL and replace "/" with "_"
-    // and replace the periods (.) with an underscore (_) to match binary resource names
+    // Parse the URL to match the binary resource name
     juce::String resourceToRetrieve;
     if (url == "/") {
         resourceToRetrieve = "index_html";
@@ -103,10 +100,9 @@ std::optional<juce::WebBrowserComponent::Resource>
 
     int dataSize = 0;
 
-    // Retrieve the binary resource based on the modified resource name
+    // Retrieve the binary resource
     if (auto* data = BinaryData::getNamedResource(resourceToRetrieve.toRawUTF8(), dataSize)) {
 
-        // Get the file extension for MIME type
         const auto extension = resourceToRetrieve.fromLastOccurrenceOf("_", false, true);
         return juce::WebBrowserComponent::Resource{
             std::vector<std::byte>(reinterpret_cast<const std::byte*>(data),

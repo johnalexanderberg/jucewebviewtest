@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Flutter',
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -30,10 +30,10 @@ class MyApp extends StatelessWidget {
         //
         // This works for code too, not just values: Most code changes can be
         // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurpleAccent),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'Flutter & Juce Test'),
     );
   }
 }
@@ -56,17 +56,13 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 class _MyHomePageState extends State<MyHomePage> {
-  // State variables for the sliders
-  double _sliderValue1 = 20.0;
-  double _sliderValue2 = 50.0;
-  double _sliderValue3 = 80.0;
+  double _slidervalue = 0.5;
 
-  // Callbacks for the sliders
-  void _onSlider1Changed(double value) {
+  void _onSliderChanged(double value) {
     setState(() {
-      _sliderValue1 = value;
+      _slidervalue = value;
       try {
-        js.context.callMethod('sendToJs', ['hello JS from dart code']);
+        js.context.callMethod('sendToNative', [value]);
       } catch (e, stack) {
         print('Caught error: $e');
         print('Stack trace: $stack');
@@ -74,54 +70,12 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  void _onSlider2Changed(double value) {
-    setState(() {
-      _sliderValue2 = value;
-    });
-  }
-
-  void _onSlider3Changed(double value) {
-    setState(() {
-      _sliderValue3 = value;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Slider 1
-            Text('Slider 1: ${_sliderValue1.toStringAsFixed(1)}'),
-            SliderWidget(value: _sliderValue1, onChanged: _onSlider1Changed),
-
-            SizedBox(height: 20), // Add some spacing
-
-            // Slider 2
-            Text('Slider 2: ${_sliderValue2.toStringAsFixed(1)}'),
-            SliderWidget(value: _sliderValue2, onChanged: _onSlider2Changed),
-
-            SizedBox(height: 20), // Add some spacing
-
-            // Slider 3
-            Text('Slider 3: ${_sliderValue3.toStringAsFixed(1)}'),
-            SliderWidget(value: _sliderValue3, onChanged: _onSlider3Changed),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Do something with all slider values
-          debugPrint('Slider values: $_sliderValue1, $_sliderValue2, $_sliderValue3');
-        },
-        tooltip: 'Log Slider Values',
-        child: const Icon(Icons.check),
+        child: SliderWidget(value: _slidervalue, onChanged: _onSliderChanged)
       ),
     );
   }

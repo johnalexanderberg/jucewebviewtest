@@ -1,7 +1,10 @@
-function sendToJs(message) {
-    console.log("Message from Dart to JS:", message);
-    // You can do something with JUCE's API here
-    window.Juce.getNativeFunction('sendToNative')("Message from JS to C++").then((response) => {
-        console.log(response);
+function sendToNative(message) {
+    console.log("Message from Dart code: " +message);
+    // We can call C++ functions from the window.Juce object
+    window.Juce.getNativeFunction('sendToNative')("Slider value changed: " +message).then((response) => {
+        if (response)
+        {
+            console.log("Response from C++: " +response);
+        }
     });
 }
