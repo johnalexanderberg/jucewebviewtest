@@ -70,22 +70,68 @@ target_compile_definitions(${BaseTargetName}
 #file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/build/_deps/juce-src/modules/juce_gui_extra/native/javascript/"
 #        DESTINATION "${CMAKE_CURRENT_SOURCE_DIR}/Gui/public/js/juce/")
 
-file(GLOB_RECURSE GUI_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} Gui/public/*)
-
-foreach(file IN LISTS GUI_FILES)
-    get_filename_component(dir ${file} DIRECTORY)
-    get_filename_component(name ${file} NAME_WE)
-    get_filename_component(ext ${file} EXT)
-    string(REPLACE "/" "_" var_name ${dir}/${name}${ext})
-    file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${dir})
-    file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/${file} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${dir})
-    set(${var_name} ${CMAKE_CURRENT_BINARY_DIR}/${file})
-endforeach()
-
-juce_add_binary_data(Resources
-        SOURCES
-        ${GUI_FILES}
+add_custom_target(build_flutter_ui ALL
+        COMMAND ${CMAKE_COMMAND} -E echo "Building Flutter web..."
+        COMMAND flutter build web
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/Gui/flutter_ui
+        COMMAND_EXPAND_LISTS
 )
+
+file(GLOB UI_FILES "${Gui}/*")
+add_custom_command(
+        OUTPUT ${CMAKE_BINARY_DIR}/juce_binarydata_Resources.cpp
+        COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/juce_binarydata_Resources
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${UI_SOURCE_DIR} ${CMAKE_BINARY_DIR}/juce_binarydata_Resources
+        COMMAND ${PROJ_BINARY_DATA_COMPILER} --juce --namespace juce_binarydata ${CMAKE_BINARY_DIR}/juce_binarydata_Resources
+        DEPENDS ${UI_FILES}
+)
+
+# Link build_flutter_ui target to the main executable
+add_dependencies(${BaseTargetName} build_flutter_ui)
+
+# Define the temporary directory where resources will be copied and renamed
+set(TEMP_RESOURCE_DIR ${CMAKE_BINARY_DIR}/temp_resources)
+
+# Recursively find all files in the Flutter build directory
+file(GLOB_RECURSE FLUTTER_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} Gui/flutter_ui/build/web/*)
+
+# Create a list to hold renamed files for JUCE binary data
+set(RENAME_FLUTTER_FILES)
+
+# Loop through the found files
+foreach(FILE ${FLUTTER_FILES})
+
+    # Extract the directory part from the file path
+    get_filename_component(DIR_PART ${FILE} PATH)
+
+    # Replace "/" with "_" in the directory part
+    string(REPLACE "/" "_" DIR_PART "${DIR_PART}")
+
+    # Extract the filename from the path
+    get_filename_component(FILE_NAME ${FILE} NAME)
+
+    # Combine directory and filename to create the new file name
+    string(CONCAT RENAMED_FILE "${DIR_PART}_${FILE_NAME}")
+
+    # Remove the first part of the filename
+    set(PREFIX_TO_REMOVE "Gui_flutter_ui_build_web_")
+    string(REPLACE ${PREFIX_TO_REMOVE} "" RENAMED_FILE ${RENAMED_FILE})
+
+    # Define the destination path
+    set(DEST_PATH "${TEMP_RESOURCE_DIR}/${RENAMED_FILE}")
+
+    # Copy the file to the temporary folder
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${FILE} ${DEST_PATH} COPYONLY)
+
+    # Add the renamed file to the list for JUCE binary data
+    list(APPEND RENAME_FLUTTER_FILES ${DEST_PATH})
+    endforeach()
+
+    # Add the renamed files as binary data in JUCE
+    juce_add_binary_data(Resources
+    SOURCES
+    ${RENAME_FLUTTER_FILES}
+    )
 
 target_link_libraries(${BaseTargetName} PRIVATE
         Resources
