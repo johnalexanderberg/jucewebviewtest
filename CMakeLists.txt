@@ -47,7 +47,7 @@ juce_add_plugin("${BaseTargetName}"
         # VERSION ...                               # Set this if the plugin version is different to the project version
         # ICON_BIG ...                              # ICON_* arguments specify a path to an image file to use as an icon for the Standalone
         # ICON_SMALL ...
-        COMPANY_NAME "Hypnus"
+        COMPANY_NAME "Company"
         IS_SYNTH FALSE
         NEEDS_MIDI_INPUT TRUE
         NEEDS_MIDI_OUTPUT FALSE
@@ -58,7 +58,7 @@ juce_add_plugin("${BaseTargetName}"
         PLUGIN_CODE NPtm
         FORMATS AU VST3 Standalone
         NEEDS_WEBVIEW2 TRUE
-        PRODUCT_NAME "JuceWebviewTest")
+        PRODUCT_NAME "JuceFlutterWebTest")
 
 target_compile_definitions(${BaseTargetName}
         PUBLIC
