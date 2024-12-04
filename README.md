@@ -1,11 +1,10 @@
+
 # JUCE Webview + Flutter Web
 
-This is a simple project to test running a Flutter Web UI inside a JUCE WebView and calling C++ functions from Dart code. Its based on the Juce demo and adapted to work with Flutter Web.
-To build this project, you need to have the Flutter SDK installed.
+This is a simple project to test running a Flutter Web UI inside a JUCE WebView and calling C++ functions from Dart code. 
 
----
-
-## How It Works:
+<details>
+  <summary>How it works</summary>
 
 ### 1. User Interaction with Flutter:
 - The app has a slider (`SliderWidget`).
@@ -40,16 +39,17 @@ To build this project, you need to have the Flutter SDK installed.
 ## Request Path Parsing in the C++ Backend
 
 1. **Handling Requests**:
-   - The WebView sends requests for resources to the C++ backend (e.g., `/assets/images/logo.png` or `/`).
+    - The WebView sends requests for resources to the C++ backend (e.g., `/assets/images/logo.png` or `/`).
 
 2. **Mapping Requests to Binary Resources**:
-   - The C++ backend parses the request paths, converting them to match the renamed binary resource names.  
-     Example: `/assets/images/logo.png` → `assets_images_logo_png`.
+    - The C++ backend parses the request paths, converting them to match the renamed binary resource names.  
+      Example: `/assets/images/logo.png` → `assets_images_logo_png`.
 
 ## Build Step
 
 1. **Flutter Web Build**:
-   - CMake automatically builds the Flutter UI by running `flutter build web` during the build process.
+    - CMake automatically builds the Flutter UI by running `flutter build web` during the build process.
 
 2. **Inserting File Paths into Binary Names**:
-   - Then renames the flutter files to include their original file paths in the binary names. This is to keep the relationship between requests and resources (while renaming `/` and `.` to `_`).
+    - Then renames the flutter files to include their original file paths in the binary names. This is to keep the relationship between requests and resources (while renaming `/` and `.` to `_`).
+</details>
