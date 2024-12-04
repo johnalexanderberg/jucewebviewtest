@@ -11,6 +11,9 @@ public:
 private:
     std::optional<juce::WebBrowserComponent::Resource> getResource(const juce::String& url);
     void resized() override;
+    juce::WebSliderRelay gainRelay;
+    juce::WebSliderParameterAttachment gainAttachment;
     juce::WebBrowserComponent webView;
+
 
 };

@@ -41,10 +41,13 @@ const char* getMimeForExtension (const juce::String& extension)
 }
 WebviewTestAudioProcessorEditor::WebviewTestAudioProcessorEditor(WebviewTestAudioProcessor& p)
     : AudioProcessorEditor(&p),
+        gainRelay ("gain"),
+        gainAttachment(*p.parameters.gain, gainRelay, nullptr),
     webView {juce::WebBrowserComponent::Options{}.withBackend(juce::WebBrowserComponent::Options::Backend::webview2)
                  .withWinWebView2Options(juce::WebBrowserComponent::Options::WinWebView2{}.withUserDataFolder(juce::File::getSpecialLocation(juce::File::tempDirectory)))
+                 .withOptionsFrom (gainRelay)
                  .withResourceProvider([this](const auto& url){
-                                           return getResource(url);})
+                                           return getResource(url); })
                  .withNativeIntegrationEnabled()
                  .withNativeFunction("sendToNative",
                                      [this](const juce::Array<juce::var>& args, juce::WebBrowserComponent::NativeFunctionCompletion completion) {
