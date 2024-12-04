@@ -7,32 +7,20 @@ This is a simple project to test running a Flutter Web UI inside a JUCE WebView 
   <summary>How it works</summary>
 
 ### 1. User Interaction with Flutter:
-- The app has a slider (`SliderWidget`).
-- When the slider is moved, its value gets updated in Flutter, triggering the `_onSliderChanged` function.
-
+- The app has 2 sliders (`SliderWidget`).
+- Slider 1 triggers a native C++ function on value change that just logs the value.
+- Slider 2 is bound to a JUCE gain parameter.
 ---
 
 ### 2. Calling JavaScript:
-- The slider value is sent to JavaScript using the `dart:js` library.
+- To make JUCE's C++ functions accessible to JavaScript, the JUCE js library is loaded into the window object in index.html.
+- Slider values are passed from Dart to JavaScript using the dart:js library.
 
 ---
 
-### 3. JavaScript as the Bridge:
-- In `interop.js`, the `sendToNative` function acts as the middleman.
-- It takes the slider value and sends it to a C++ function exposed by JUCE.
-- To make JUCE's C++ functions accessible to JavaScript, the JUCE js library is loaded into the `window` object in `index.html`.
-- This setup allows JavaScript in `interop.js` to call C++ functions registered in JUCE via window.Juce.
-
----
-
-### 4. C++ Side:
-- The C++ `sendToNative` function (registered as a "native function" in JUCE) processes the value received from JavaScript.
-- C++ can optionally send a response back to JavaScript.
-
----
-
-### 5. Logging Messages:
-- In this example, messages sent back and forth are just printed to the console (C++ logs to the terminal, and the WebView logs to the browser console).
+### 3. C++ Side:
+- A native function (sendToNative) processes values received from JavaScript.
+- A JUCE parameter (gain), is connected to the front end using **gainRelay** and **gainAttachment**.
 
 ---
 
