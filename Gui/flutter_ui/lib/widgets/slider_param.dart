@@ -22,24 +22,14 @@ class _SliderParamState extends State<SliderParam> {
 
     _currentValue = js.context.callMethod('getSliderNormalisedValue', [widget.parameterId]);
 
-    // Dart function as a callback
-    var callback = js.allowInterop((value) {
-      try {
-        setState(() {
-          _currentValue = value;
-        });
-      } catch (e) {
-        print('Error: $e');
-      }
+    var onValueChangedFromDaw = js.allowInterop((value) {
+      setState(() {
+        _currentValue = value;
+      });
     });
 
-    // Pass the callback to JavaScript along with the parameterId
-    try {
-      js.context.callMethod('addSliderListener', [widget.parameterId, callback]);
-    } catch (e) {
-      print('Error: $e');
+      js.context.callMethod('addSliderListener', [widget.parameterId, onValueChangedFromDaw]);
     }
-  }
 
   void _onChangeStart(double value) {
     js.context.callMethod('sliderDragStarted',
