@@ -11,12 +11,12 @@
   <title>flutter_ui</title>
 </head>
 <body>
-  <script src="js/jsInterop.js"> </script>
   <script type="module">
     import * as Juce from './juce/index.js';
     // Attach the Juce object to the window so it's globally accessible
     window.Juce = Juce;
   </script>
+  <script src="js/JuceAdapter.js"> </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
