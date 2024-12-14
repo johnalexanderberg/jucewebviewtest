@@ -28,7 +28,8 @@ const char* getMimeForExtension (const juce::String& extension)
             { { "css"   },  "text/css"                 },
             { { "map"   },  "application/json"         },
             { { "js"    },  "text/javascript"          },
-            { { "woff2" },  "font/woff2"               }
+            { { "woff2" },  "font/woff2"               },
+            { { "wasm"  },  "application/wasm"         }
         };
 
     if (const auto it = mimeMap.find (extension.toLowerCase()); it != mimeMap.end())

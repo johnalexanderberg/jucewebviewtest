@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'widgets/slider_param.dart';
 
 void main() {
+  const isRunningWithWasm = bool.fromEnvironment('dart.tool.dart2wasm');
+  print(isRunningWithWasm? "Running with Wasm" : "Not running with Wasm");
   runApp(const MyApp());
 }
 
@@ -25,10 +27,13 @@ class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
   final String title;
 
+
+
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 class _MyHomePageState extends State<MyHomePage> {
+
   double _sliderValue = 0.5;
   @override
   void initState() {

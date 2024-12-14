@@ -1,5 +1,32 @@
 import 'package:flutter/material.dart';
-import 'dart:js' as js;
+import 'dart:js_interop';
+
+@JS()
+@anonymous
+@staticInterop
+class JsSliderInterop {}
+
+@JS('getSliderNormalisedValue')
+external double getSliderNormalisedValue(String parameterId);
+
+@JS('setSliderNormalisedValue')
+external void setSliderNormalisedValue(String parameterId, double value);
+
+@JS('sliderDragStarted')
+external void sliderDragStarted(String parameterId);
+
+@JS('sliderDragEnded')
+external void sliderDragEnded(String parameterId);
+
+// @JS()
+// external void addSliderListener(String parameterId, JSFunctionRepType callback);
+//
+// // A wrapper to allow Dart function to work with JS interop.
+// @JS()
+// @staticInterop
+// class JSFunctionRepType {
+//   external factory JSFunctionRepType(void Function(double) callback);
+// }
 
 class SliderParam extends StatefulWidget {
   final String parameterId;
@@ -20,31 +47,27 @@ class _SliderParamState extends State<SliderParam> {
   void initState() {
     super.initState();
 
-    _currentValue = js.context.callMethod('getSliderNormalisedValue', [widget.parameterId]);
+    // Fetch the initial value from JavaScript.
+    _currentValue = getSliderNormalisedValue(widget.parameterId);
 
-    var onValueChangedFromDaw = js.allowInterop((value) {
-      setState(() {
-        _currentValue = value;
-      });
-    });
-
-      js.context.callMethod('addSliderListener', [widget.parameterId, onValueChangedFromDaw]);
-    }
+  //   // Register a listener for updates from JavaScript
+  //   addSliderListener(widget.parameterId, JSFunctionRepType((double value) {
+  //     setState(() {
+  //       _currentValue = value;
+  //     });
+  //   }));
+  }
 
   void _onChangeStart(double value) {
-    js.context.callMethod('sliderDragStarted',
-        [widget.parameterId]);
+    sliderDragStarted(widget.parameterId);
   }
 
   void _onChangeEnd(double value) {
-    js.context.callMethod('sliderDragEnded',
-        [widget.parameterId]);
+    sliderDragEnded(widget.parameterId);
   }
 
   void _onChanged(double value) {
-    js.context.callMethod(
-        'setSliderNormalisedValue',
-        [widget.parameterId, value]);
+    setSliderNormalisedValue(widget.parameterId, value);
 
     setState(() {
       _currentValue = value;

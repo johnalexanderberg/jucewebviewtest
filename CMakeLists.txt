@@ -72,7 +72,7 @@ target_compile_definitions(${BaseTargetName}
 
 add_custom_target(build_flutter_ui ALL
         COMMAND ${CMAKE_COMMAND} -E echo "Building Flutter web..."
-        COMMAND flutter build web
+        COMMAND flutter build web --wasm
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/Gui/flutter_ui
         COMMAND_EXPAND_LISTS
 )
